@@ -1,4 +1,4 @@
-FROM rust:1.85.1-slim-bookworm AS rust
+FROM rust:1.91.1-slim-bookworm AS rust
 
 ENV RUSTUP_DIST_SERVER="https://rsproxy.cn" \
   RUSTUP_UPDATE_ROOT="https://rsproxy.cn/rustup"
@@ -61,37 +61,13 @@ RUN wget https://github.com/rui314/mold/releases/download/v$MOLD_VERSION/mold-$M
 
 RUN mkdir /output && tar -C /output --strip-components=1 -zxvf mold-$MOLD_VERSION-x86_64-linux.tar.gz
 
-FROM busybox:1.36.1 AS go
-
-ARG GO_VERSION
-
-RUN wget https://dl.google.com/go/go$GO_VERSION.linux-amd64.tar.gz
-
-RUN mkdir /output && tar -C /output --strip-components=1 -zxvf go$GO_VERSION.linux-amd64.tar.gz
-
-
-FROM busybox:1.36.1 AS tinygo
-
-ARG TINYGO_VERSION
-
-RUN wget https://github.com/tinygo-org/tinygo/releases/download/v$TINYGO_VERSION/tinygo$TINYGO_VERSION.linux-amd64.tar.gz
-
-RUN mkdir /output && tar -C /output --strip-components=1 -zxvf tinygo$TINYGO_VERSION.linux-amd64.tar.gz
-
 
 FROM rust
 
-ENV GOPROXY="https://goproxy.woa.com,direct"                                  \
-  GOSUMDB="sum.woa.com+643d7a06+Ac5f5VOC4N8NUXdmhbm8pZSXIWfhek5JSmWdWrq7pLX4"
-
-ENV PATH=/opt/wasmtime:/opt/mold/bin:/opt/go/bin:/opt/tinygo/bin:$PATH
+ENV PATH=/opt/wasmtime:/opt/mold/bin:$PATH
 
 COPY --from=cargo-bin /output/* $CARGO_HOME/bin/
 
 COPY --from=mold /output /opt/mold
 
 COPY --from=wasmtime /output /opt/wasmtime
-
-COPY --from=go /output /opt/go
-
-COPY --from=tinygo /output /opt/tinygo
