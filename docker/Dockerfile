@@ -23,17 +23,19 @@ RUN rustup component add rustfmt && rustup target add wasm32-unknown-unknown was
 FROM rust AS cargo-bin
 
 ARG CARGO_COMPONENT_VERSION
+ARG WAC_VERSION
 ARG WASM_TOOLS_VERSION
 ARG WIT_BINDGEN_VERSION
 
 RUN cargo install                           \
   cargo-component@$CARGO_COMPONENT_VERSION  \
+  wac-cli@$WAC_VERSION                      \
   wasm-tools@$WASM_TOOLS_VERSION            \
   wit-bindgen-cli@$WIT_BINDGEN_VERSION
 
 WORKDIR /output
 
-RUN cp `which cargo-component` `which wasm-tools` `which wit-bindgen` ./
+RUN cp `which cargo-component` `which wac` `which wasm-tools` `which wit-bindgen` ./
 
 
 FROM busybox:1.36.1 AS wasmtime
