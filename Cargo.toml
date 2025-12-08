@@ -37,6 +37,8 @@ members = [
   "component-model-built-with-wit-bindgen/host-resource/cli",
   "component-model-built-with-wit-bindgen/wasm32-wasip2-hello-world/guest",
   "component-model-built-with-wit-bindgen/wasm32-wasip2-hello-world/host",
+  "component-model-built-with-wit-bindgen/composed-cli/cli",
+  "component-model-built-with-wit-bindgen/composed-cli/guest",
 ]
 
 resolver = "2"
@@ -44,9 +46,9 @@ resolver = "2"
 [workspace.dependencies]
 anyhow = "1.0.82"
 wasm-bindgen = "0.2.92"
-wasmtime = "20.0.0"
-wasmtime-wasi = "20.0.0"
-wit-bindgen = "0.25.0"
+wasmtime = "39.0.1"
+wasmtime-wasi = "39.0.1"
+wit-bindgen = "0.49.0"
 
 [workspace.dependencies.async-std]
 features = ["attributes"]
@@ -58,8 +60,8 @@ version = "4.5.4"
 
 [workspace.dependencies.tokio]
 features = ["full"]
-version = "1.38"
+version = "1.48"
 
 [workspace.dependencies.wit-bindgen-rt]
 features = ["bitflags"]
-version = "0.24.0"
+version = "0.44.0"
