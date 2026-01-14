@@ -1320,6 +1320,30 @@ dependencies = [
 ]
 
 [[package]]
+name = "host-resource-with-method-added-app-v1"
+version = "0.1.0"
+dependencies = [
+ "wit-bindgen 0.49.0",
+]
+
+[[package]]
+name = "host-resource-with-method-added-app-v2"
+version = "0.1.0"
+dependencies = [
+ "wit-bindgen 0.49.0",
+]
+
+[[package]]
+name = "host-resource-with-method-added-cli"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "clap",
+ "wasmtime",
+ "wasmtime-wasi",
+]
+
+[[package]]
 name = "iana-time-zone"
 version = "0.1.60"
 source = "registry+https://github.com/rust-lang/crates.io-index"

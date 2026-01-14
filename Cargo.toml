@@ -39,6 +39,9 @@ members = [
   "component-model-built-with-wit-bindgen/wasm32-wasip2-hello-world/host",
   "component-model-built-with-wit-bindgen/composed-cli/cli",
   "component-model-built-with-wit-bindgen/composed-cli/guest",
+  "component-model-built-with-wit-bindgen/host-resource-with-method-added/app-v1",
+  "component-model-built-with-wit-bindgen/host-resource-with-method-added/app-v2",
+  "component-model-built-with-wit-bindgen/host-resource-with-method-added/cli",
 ]
 
 resolver = "2"
