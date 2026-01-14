@@ -1,0 +1,8 @@
+[build]
+target = "wasm32-wasip2"
+
+[profile.release]
+# 移除辅助调试的符号
+#strip = true
+# debuginfo 指示有选择的移除部分自定义小结的调试信息，例如 .debug_abbrev
+strip = "debuginfo"

@@ -12,9 +12,9 @@ registry = "sparse+https://rsproxy.cn/index/"
 [registries.rsproxy]
 index = "https://rsproxy.cn/crates.io-index"
 
-[target.x86_64-unknown-linux-gnu]
-linker = "clang"
-rustflags = ["-C", "link-arg=-fuse-ld=/opt/mold/bin/mold"]
+#[target.x86_64-unknown-linux-gnu]
+#linker = "clang"
+#rustflags = ["-C", "link-arg=-fuse-ld=/opt/mold/bin/mold"]
 
 [target.'cfg(target_arch = "wasm32")']
 # strip 选项作用如下（详情参考 https://doc.rust-lang.org/cargo/reference/profiles.html#strip）
