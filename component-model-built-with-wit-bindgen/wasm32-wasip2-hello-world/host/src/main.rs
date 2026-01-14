@@ -4,7 +4,7 @@ use anyhow::Context as _;
 use clap::Parser;
 use wasmtime::component::{Component, Linker, ResourceTable, Val};
 use wasmtime::{Config, Engine, Store};
-use wasmtime_wasi::{WasiCtx, WasiView};
+use wasmtime_wasi::{WasiCtx, WasiCtxView, WasiView};
 
 fn main() -> anyhow::Result<()> {
     let Cli { path, name } = Cli::parse();
@@ -15,7 +15,7 @@ fn main() -> anyhow::Result<()> {
     let mut linker = Linker::new(&engine);
 
     // Add the command world (aka WASI CLI) to the linker
-    wasmtime_wasi::add_to_linker_sync(&mut linker).context("link command world")?;
+    wasmtime_wasi::p2::add_to_linker_sync(&mut linker).context("link command world")?;
 
     let mut store = Store::new(&engine, State::new());
 
@@ -28,12 +28,19 @@ fn main() -> anyhow::Result<()> {
         .instantiate(&mut store, &component)
         .context("instantiate")?;
 
-    let f = instance
-        .exports(&mut store)
-        .instance(INTERFACE)
-        .ok_or_else(|| anyhow::anyhow!("miss interface: {INTERFACE}"))?
-        .func(FUNC_NAME)
-        .with_context(|| format!("miss func '{FUNC_NAME}'"))?;
+    let f = {
+        let ii = instance
+            .get_export_index(&mut store, None, INTERFACE)
+            .ok_or_else(|| anyhow::anyhow!("miss interface: {INTERFACE}"))?;
+
+        let fi = instance
+            .get_export_index(&mut store, Some(&ii), FUNC_NAME)
+            .with_context(|| format!("miss export-index for func '{FUNC_NAME}'"))?;
+
+        instance
+            .get_func(&mut store, fi)
+            .with_context(|| format!("miss func '{FUNC_NAME}'"))?
+    };
 
     let params = [new_hello_request(name.clone())];
     let mut results = [Val::Bool(false)];
@@ -74,12 +81,11 @@ impl State {
 }
 
 impl WasiView for State {
-    fn ctx(&mut self) -> &mut WasiCtx {
-        &mut self.ctx
-    }
-
-    fn table(&mut self) -> &mut ResourceTable {
-        &mut self.table
+    fn ctx(&mut self) -> WasiCtxView<'_> {
+        WasiCtxView {
+            ctx: &mut self.ctx,
+            table: &mut self.table,
+        }
     }
 }
 
