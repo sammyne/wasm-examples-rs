@@ -1,6 +1,6 @@
 #!/bin/bash
 
-repo_tag=sammyne/wasm-studio-rs:ce47db7
+repo_tag=sammyne/wasm-studio-rs:1404091
 
 name=github-wasm-studio-rs
 
