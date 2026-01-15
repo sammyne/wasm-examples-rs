@@ -2,10 +2,9 @@ use std::path::PathBuf;
 
 use anyhow::Context as _;
 use clap::Parser;
-use wasmtime::component::{Component, Linker, Resource, ResourceAny, Val};
+use wasmtime::component::{Component, HasSelf, Linker, Resource, ResourceAny, Val};
 use wasmtime::{Config, Engine, Store};
-use wasmtime_wasi::preview1::WasiP1Ctx;
-use wasmtime_wasi::{WasiCtx, WasiCtxBuilder, WasiView};
+use wasmtime_wasi::{ResourceTable, WasiCtx, WasiCtxBuilder, WasiCtxView, WasiView};
 
 mod bindings {
     wasmtime::component::bindgen!(in "../app/wit");
@@ -23,8 +22,8 @@ fn main() -> anyhow::Result<()> {
     let mut linker = Linker::new(&engine);
 
     // Add the command world (aka WASI CLI) to the linker
-    wasmtime_wasi::add_to_linker_sync(&mut linker).context("link command world")?;
-    bindings::Helloworld::add_to_linker(&mut linker, |v: &mut MyHost| v)
+    wasmtime_wasi::p2::add_to_linker_sync(&mut linker).context("link command world")?;
+    bindings::Helloworld::add_to_linker::<_, HasSelf<_>>(&mut linker, |v: &mut MyHost| v)
         .context("helloworld add-to-linker")?;
 
     let mut store = Store::new(&engine, MyHost::new());
@@ -41,12 +40,19 @@ fn main() -> anyhow::Result<()> {
     let owned_ctx: Resource<Context> = Resource::new_own(0);
     let ctx = ResourceAny::try_from_resource(owned_ctx, &mut store).context("borrow ctx")?;
 
-    let f = instance
-        .exports(&mut store)
-        .instance(INTERFACE)
-        .ok_or_else(|| anyhow::anyhow!("miss interface: {INTERFACE}"))?
-        .func(FUNC_NAME)
-        .with_context(|| format!("miss func '{FUNC_NAME}'"))?;
+    let f = {
+        let ii = instance
+            .get_export_index(&mut store, None, INTERFACE)
+            .ok_or_else(|| anyhow::anyhow!("miss interface: {INTERFACE}"))?;
+
+        let fi = instance
+            .get_export_index(&mut store, Some(&ii), FUNC_NAME)
+            .with_context(|| format!("miss export-index for func '{FUNC_NAME}'"))?;
+
+        instance
+            .get_func(&mut store, fi)
+            .with_context(|| format!("miss func '{FUNC_NAME}'"))?
+    };
 
     let params = [Val::Resource(ctx), new_hello_request(name.clone())];
     let mut results = [Val::Bool(false)];
@@ -77,13 +83,15 @@ fn new_hello_request(name: String) -> Val {
 }
 
 struct MyHost {
-    ctx: WasiP1Ctx,
+    ctx: WasiCtx,
+    table: ResourceTable,
 }
 
 impl MyHost {
     fn new() -> Self {
         Self {
-            ctx: WasiCtxBuilder::new().inherit_stdout().build_p1(),
+            ctx: WasiCtxBuilder::new().inherit_stdout().build(),
+            table: ResourceTable::new(),
         }
     }
 }
@@ -91,16 +99,13 @@ impl MyHost {
 impl Host for MyHost {}
 
 impl HostContext for MyHost {
-    fn request_id(
-        &mut self,
-        self_: wasmtime::component::Resource<Context>,
-    ) -> wasmtime::Result<i64> {
+    fn request_id(&mut self, self_: wasmtime::component::Resource<Context>) -> i64 {
         println!(
             "request-id for owned({}) and rep=({})",
             self_.owned(),
             self_.rep()
         );
-        Ok(123)
+        123
     }
 
     fn drop(&mut self, rep: wasmtime::component::Resource<Context>) -> wasmtime::Result<()> {
@@ -110,11 +115,10 @@ impl HostContext for MyHost {
 }
 
 impl WasiView for MyHost {
-    fn table(&mut self) -> &mut wasmtime_wasi::ResourceTable {
-        self.ctx.table()
-    }
-
-    fn ctx(&mut self) -> &mut WasiCtx {
-        self.ctx.ctx()
+    fn ctx(&mut self) -> WasiCtxView<'_> {
+        WasiCtxView {
+            ctx: &mut self.ctx,
+            table: &mut self.table,
+        }
     }
 }
