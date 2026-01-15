@@ -1,5 +1,5 @@
 [build]
-target = "wasm32-wasip1"
+target = "wasm32-wasip2"
 
 [profile.release]
 # 移除辅助调试的符号

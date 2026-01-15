@@ -11,7 +11,7 @@ cargo component build --release --lib
 
 ```bash
 # hello_world.wasm 是上一步的编译产物
-cargo run -- ../../target/wasm32-wasi/release/hello_world.wasm
+cargo run -- ../../target/wasm32-wasip2/release/hello_world.wasm
 ```
 
 ## 参考文献
