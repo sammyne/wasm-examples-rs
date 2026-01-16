@@ -42,6 +42,8 @@ members = [
   "component-model-built-with-wit-bindgen/host-resource-with-method-added/app-v1",
   "component-model-built-with-wit-bindgen/host-resource-with-method-added/app-v2",
   "component-model-built-with-wit-bindgen/host-resource-with-method-added/cli",
+  "component-model-built-with-wit-bindgen/backtrace-quickstart/app",
+  "component-model-built-with-wit-bindgen/backtrace-quickstart/cli",
 ]
 
 resolver = "2"
