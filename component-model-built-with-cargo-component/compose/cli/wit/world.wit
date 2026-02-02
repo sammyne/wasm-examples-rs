@@ -1,5 +1,0 @@
-package docs:app;
-
-world app {
-    import docs:calculator/calculate@0.1.0;
-}

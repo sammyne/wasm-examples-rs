@@ -1,5 +1,0 @@
-package docs:app;
-
-world app {
-    import sammyne:hello2/api@0.1.0;
-}
