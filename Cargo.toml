@@ -30,8 +30,7 @@ members = [
   "reactors/host-resource-with-method-added/cli",
   "reactors/backtrace-quickstart/app",
   "reactors/backtrace-quickstart/cli",
-  "commands/hello-world",
-  "commands/wasi-cli-run",
+  "commands/*",
 ]
 
 resolver = "2"

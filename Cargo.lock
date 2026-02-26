@@ -340,6 +340,10 @@ name = "command-hello-world"
 version = "0.1.0"
 
 [[package]]
+name = "command-walk-dir"
+version = "0.1.0"
+
+[[package]]
 name = "compose-adder"
 version = "0.1.0"
 dependencies = [

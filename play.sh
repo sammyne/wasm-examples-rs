@@ -8,13 +8,15 @@ docker stop $name
 
 docker wait $name
 
+workdir=/github.com/sammyne/wasm-examples-rs
+
 docker run -td --rm                             \
   -e CARGO_HOME=/root/.cargo                    \
   --name $name                                  \
-  -v $PWD:/workspace                            \
+  -v $PWD:$workdir                              \
   -v $PWD/_cargo/registry:/root/.cargo/registry \
   -v $PWD/_cargo/git:/root/.cargo/git           \
-  -w /workspace                                 \
+  -w $workdir                                   \
   $repo_tag                                     \
     bash -c 'echo "export PATH=/root/.cargo/bin:$PATH" >> /root/.bashrc; bash'
 
